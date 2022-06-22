@@ -49,7 +49,8 @@ class MatchingConsumer(WebsocketConsumer):
         matchingQueueList = myformat_serialize(matchingQueue.waiting_users)
         
         if len(matchingQueueList) >= 2:
-            matchingQueueList = []
+            matchingQueueList.pop(0)
+            matchingQueueList.pop(0)
         
         matchingQueueList.append(userUuid)
 
