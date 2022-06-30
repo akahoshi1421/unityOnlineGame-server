@@ -111,7 +111,7 @@ class WaitingConsumer(WebsocketConsumer):
             theroom.two_players = myformat_deserialize(addedlist)
             theroom.save()
             res["res"] = "OK"
-            res["random"] = [random.randint(1, 4) for i in range(0, 10)]#障害物生成アルゴリズム
+            res["random"] = [random.randint(1, 3) for i in range(0, 10)]#障害物生成アルゴリズム
             #print(res["random"])
         
         except:#一人目
