@@ -63,7 +63,7 @@ class MatchingConsumer(WebsocketConsumer):
         )
     
     def sendMessage(self, event):
-        print(event["message"])
+        #print(event["message"])
         if len(event["message"]) < 2:
             self.send(text_data=json.dumps({"playerA": "NONE", "playerB": "NONE"}))
         
@@ -150,7 +150,7 @@ class FightingConsumer(WebsocketConsumer):
     
     def receive(self, text_data):
         pos = json.loads(text_data)
-        print(pos)
+        #print(pos)
         #{"userid": "ユーザのuuid", "pos": "レーン位置"}
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
@@ -159,6 +159,35 @@ class FightingConsumer(WebsocketConsumer):
 
     def sendMessage(self, event):
         data = event["message"]
-        print("DEBUG!!!" , data)
+        #print("DEBUG!!!" , data)
         self.send(text_data=json.dumps({"userid": data["userid"], "pos": data["pos"]}))
         #{"userid": "そのプレイヤーのuuid", "pos": "そのプレイヤーがいるレーン(1~4で4はゲームオーバーフラグ)"}
+
+class StoneFallConsumer(WebsocketConsumer):
+    def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name + "4"
+        # Join room group
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name,
+            self.channel_name
+        )
+        self.accept()
+    
+    def disconnect(self, close_code):
+        # Leave room group
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name,
+            self.channel_name
+        )
+    
+    def receive(self, text_data):
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            { 'type': 'sendMessage', 'message': random.randint(1, 3)}
+        )
+
+    def sendMessage(self, event):
+        data = event["message"]
+        self.send(text_data=json.dumps({"stonepos": data}))
+        #{"stonepos": 障害物の位置}
